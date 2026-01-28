@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ING Hypotheek Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ing-orange: #FF6600;
+            --ing-blue: #000066;
+            --ing-indigo: rgb(82, 81, 153);
+            --ing-grey: #ABA195;
+            --ing-black: #000000;
+            --ing-white: #FFFFFF;
+            --ing-light-grey: #f5f4f2;
+            --ing-border-grey: #e0ddd8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+            background-color: var(--ing-light-grey);
+            color: var(--ing-black);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--ing-white);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--ing-blue);
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--ing-orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ing-white);
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--ing-blue);
+        }
+
+        /* Notification Bell */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .notification-bell:hover {
+            background-color: var(--ing-light-grey);
+        }
+
+        .notification-bell svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--ing-blue);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: var(--ing-orange);
+            color: var(--ing-white);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 32px;
+            width: 380px;
+            background-color: var(--ing-white);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--ing-border-grey);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-height: 500px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .notification-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--ing-border-grey);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notification-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ing-blue);
+        }
+
+        .mark-all-read {
+            font-size: 13px;
+            color: var(--ing-orange);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .mark-all-read:hover {
+            text-decoration: underline;
+        }
+
+        .mark-all-read.completed {
+            display: none;
+        }
+
+        .checkmark-icon {
+            display: none;
+            width: 24px;
+            height: 24px;
+            fill: var(--ing-orange);
+            animation: checkmarkFadeIn 0.3s ease-out forwards, checkmarkFadeOut 0.3s ease-out 1s forwards;
+        }
+
+        @keyframes checkmarkFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes checkmarkFadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+        }
+
+        .notification-list {
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--ing-border-grey);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            gap: 12px;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background-color: var(--ing-light-grey);
+        }
+
+        .notification-item.unread {
+            background-color: rgba(255, 102, 0, 0.05);
+        }
+
+        .notification-icon {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                margin-top: 6px;
+            background-color: var(--ing-blue);
+        }
+
+            .notification-item.unread .notification-icon {
+                display: inline-flex;
+            }
+
+        .notification-icon.update svg {
+            display: none;
+        }
+
+        .notification-icon.alert svg {
+            display: none;
+        }
+
+        .notification-icon.success svg {
+            display: none;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--ing-black);
+            margin-bottom: 4px;
+        }
+
+        .notification-text {
+            font-size: 13px;
+            color: var(--ing-grey);
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--ing-grey);
+        }
+
+        /* Main Dashboard Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, var(--ing-orange) 0%, #ff8533 100%);
+            color: var(--ing-white);
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .main-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Card Styling */
+        .card {
+            background-color: var(--ing-white);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--ing-border-grey);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ing-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--ing-orange);
+        }
+
+        .card-badge {
+            background-color: var(--ing-orange);
+            color: var(--ing-white);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Progress Timeline - Subtiel & Modern */
+        .progress-timeline {
+            position: relative;
+            padding: 0;
+        }
+
+        .timeline-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            position: relative;
+            padding-bottom: 40px;
+        }
+
+        .timeline-step:last-child {
+            padding-bottom: 0;
+        }
+
+        /* Rechte verbindingslijn tussen knooppunten */
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: 13px;
+            top: 28px;
+            width: 2px;
+            height: calc(100% - 28px);
+            background-color: var(--ing-border-grey);
+        }
+
+        .timeline-step:last-child::before {
+            display: none;
+        }
+
+        .timeline-step.completed::before {
+            background-color: var(--ing-orange);
+        }
+
+        .timeline-step.active::before {
+            background: linear-gradient(to bottom, var(--ing-orange) 0%, var(--ing-border-grey) 100%);
+        }
+
+        /* Kleinere circulaire knooppunten */
+        .step-indicator {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            flex-shrink: 0;
+            z-index: 2;
+            background-color: var(--ing-white);
+            border: 2px solid var(--ing-border-grey);
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator.completed {
+            background-color: var(--ing-orange);
+            border-color: var(--ing-orange);
+            color: var(--ing-white);
+        }
+
+        .step-indicator.completed svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .step-indicator.active {
+            background-color: var(--ing-orange);
+            border-color: var(--ing-orange);
+            color: var(--ing-white);
+            box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.15);
+            animation: subtlePulse 2s ease-in-out infinite;
+        }
+
+        .step-indicator.pending {
+            background-color: var(--ing-white);
+            color: var(--ing-grey);
+            border: 2px solid var(--ing-border-grey);
+        }
+
+        @keyframes subtlePulse {
+            0%, 100% {
+                box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.15);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(255, 102, 0, 0.1);
+            }
+        }
+
+        .step-content {
+            flex: 1;
+            padding-top: 2px;
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: var(--ing-blue);
+            margin-bottom: 6px;
+            font-size: 15px;
+            letter-spacing: -0.2px;
+            line-height: 1.6;
+        }
+
+        .step-description {
+            color: var(--ing-grey);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .step-duration {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--ing-light-grey);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--ing-black);
+        }
+
+        .timeline-step.active .step-duration {
+            background-color: rgba(255, 102, 0, 0.1);
+            color: var(--ing-orange);
+        }
+
+        .step-duration svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--ing-grey);
+        }
+
+        .timeline-step.active .step-duration svg {
+            fill: var(--ing-orange);
+        }
+
+        /* Expandable Timeline Details */
+        .timeline-step {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .timeline-step:hover {
+            background-color: transparent;
+        }
+
+        .step-content::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ABA195' d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.3s ease;
+            vertical-align: middle;
+            opacity: 0.5;
+        }
+
+        .timeline-step.expanded .step-content::after {
+            transform: rotate(180deg);
+        }
+
+        .step-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            margin-top: 0;
+            padding-top: 0;
+            opacity: 0;
+        }
+
+        .timeline-step.expanded .step-details {
+            max-height: 600px;
+            margin-top: 16px;
+            padding-top: 0;
+            opacity: 1;
+        }
+
+        .step-detail-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            position: relative;
+            padding-left: 8px;
+        }
+
+        /* Kleine knooppunten voor detail items */
+        .step-detail-item::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--ing-light-grey);
+            border: 2px solid var(--ing-border-grey);
+            flex-shrink: 0;
+            margin-top: 4px;
+            position: absolute;
+            left: -21px;
+            z-index: 1;
+        }
+
+        .timeline-step.completed .step-detail-item::before {
+            background-color: rgba(255, 102, 0, 0.2);
+            border-color: var(--ing-orange);
+        }
+
+        .timeline-step.active .step-detail-item::before {
+            background-color: rgba(255, 102, 0, 0.3);
+            border-color: var(--ing-orange);
+        }
+
+        /* Verbindingslijn naar detail knooppunten */
+        .timeline-step.expanded::after {
+            content: '';
+            position: absolute;
+            left: 13px;
+            top: 28px;
+            width: 2px;
+            height: calc(100% - 28px);
+            background-color: var(--ing-border-grey);
+            z-index: 0;
+        }
+
+        .timeline-step.completed.expanded::after {
+            background-color: rgba(255, 102, 0, 0.3);
+        }
+
+        .timeline-step.active.expanded::after {
+            background-color: rgba(255, 102, 0, 0.3);
+        }
+
+        .step-detail-item:last-child {
+            margin-bottom: 8px;
+        }
+
+        .step-detail-content {
+            flex: 1;
+        }
+
+        .step-detail-title {
+            font-weight: 600;
+            color: var(--ing-blue);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .step-detail-text {
+            font-size: 13px;
+            color: var(--ing-grey);
+            line-height: 1.6;
+        }
+
+        /* Last Update Info */
+        .last-update {
+            font-size: 12px;
+            color: var(--ing-grey);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .last-update svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--ing-grey);
+            flex-shrink: 0;
+            opacity: 0.6;
+        }
+
+        /* Current Action Card */
+        .current-action {
+            background: linear-gradient(135deg, var(--ing-blue) 0%, var(--ing-indigo) 100%);
+            color: var(--ing-white);
+        }
+
+        .current-action .card-title {
+            color: var(--ing-white);
+        }
+
+        .action-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .action-icon {
+            width: 64px;
+            height: 64px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--ing-white);
+        }
+
+        .action-text h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .action-text p {
+            opacity: 0.85;
+            font-size: 14px;
+        }
+
+        /* Next Step Card */
+        .next-step-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .next-step-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background-color: var(--ing-white);
+            border-radius: 8px;
+            border: 1px solid var(--ing-border-grey);
+            transition: all 0.2s ease;
+        }
+
+        .next-step-item:hover {
+            box-shadow: 0 2px 12px rgba(255, 102, 0, 0.08);
+            border-color: rgba(255, 102, 0, 0.2);
+        }
+
+        .next-step-icon {
+            width: 48px;
+            height: 48px;
+            background-color: rgba(255, 102, 0, 0.08);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .next-step-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--ing-orange);
+        }
+
+        .next-step-info h4 {
+            font-weight: 600;
+            color: var(--ing-blue);
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .next-step-info p {
+            font-size: 13px;
+            color: var(--ing-grey);
+            line-height: 1.4;
+        }
+
+        .next-step-date {
+            margin-left: auto;
+            text-align: right;
+            flex-shrink: 0;
+            padding-left: 16px;
+        }
+
+        .next-step-date .date {
+            font-weight: 700;
+            color: var(--ing-blue);
+            font-size: 16px;
+        }
+
+        .next-step-date .label {
+            font-size: 12px;
+            color: var(--ing-orange);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Statistics Card */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stat-item {
+            background-color: var(--ing-light-grey);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--ing-orange);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--ing-grey);
+        }
+
+        /* Info Box */
+        .info-box {
+            background-color: rgba(255, 102, 0, 0.08);
+            border: 1px solid rgba(255, 102, 0, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .info-box svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--ing-orange);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: var(--ing-black);
+        }
+
+        .info-box strong {
+            color: var(--ing-orange);
+        }
+
+        /* Documents Card */
+        .document-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: var(--ing-light-grey);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .document-item:hover {
+            background-color: var(--ing-border-grey);
+        }
+
+        .document-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--ing-white);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .document-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--ing-indigo);
+        }
+
+        .document-info {
+            flex: 1;
+        }
+
+        .document-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--ing-black);
+        }
+
+        .document-status {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .document-status.complete {
+            color: #4CAF50;
+        }
+
+        .document-status.pending {
+            color: var(--ing-orange);
+        }
+
+        /* Contact Card */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .contact-person {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--ing-border-grey);
+        }
+
+        .contact-avatar {
+            width: 56px;
+            height: 56px;
+            background-color: var(--ing-indigo);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ing-white);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .contact-details h4 {
+            font-weight: 600;
+            color: var(--ing-black);
+        }
+
+        .contact-details p {
+            font-size: 14px;
+            color: var(--ing-grey);
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--ing-orange);
+            color: var(--ing-white);
+        }
+
+        .btn-primary:hover {
+            background-color: #e65c00;
+        }
+
+        .btn-secondary {
+            background-color: var(--ing-indigo);
+            color: var(--ing-white);
+        }
+
+        .btn-secondary:hover {
+            background-color: #3d3c8c;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--ing-orange);
+            color: var(--ing-orange);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--ing-orange);
+            color: var(--ing-white);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* FAQ Card */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            border: 1px solid var(--ing-border-grey);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            cursor: pointer;
+            background-color: var(--ing-white);
+            transition: background-color 0.2s ease;
+        }
+
+        .faq-question:hover {
+            background-color: var(--ing-light-grey);
+        }
+
+        .faq-question h4 {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--ing-black);
+        }
+
+        .faq-question svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--ing-grey);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-question svg {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 16px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 16px 16px;
+            max-height: 200px;
+        }
+
+        .faq-answer p {
+            font-size: 14px;
+            color: var(--ing-grey);
+            line-height: 1.6;
+        }
+
+        /* Expectation Box */
+        .expectation-box {
+            background: linear-gradient(135deg, var(--ing-light-grey) 0%, #eee9e4 100%);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .expectation-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--ing-white);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expectation-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--ing-indigo);
+        }
+
+        .expectation-text {
+            font-size: 14px;
+            color: var(--ing-black);
+            margin-bottom: 8px;
+        }
+
+        .expectation-highlight {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ing-indigo);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .header-title {
+                display: none;
+            }
+
+            .dashboard-container {
+                padding: 0 16px;
+                margin: 16px auto;
+            }
+
+            .welcome-section {
+                padding: 24px;
+            }
+
+            .welcome-title {
+                font-size: 22px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-actions {
+                flex-direction: column;
+            }
+
+            .next-step-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .next-step-date {
+                margin-left: 0;
+                margin-top: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <img src="images/INGlogotrans.png" alt="ING Logo" class="logo">
+            <span class="header-title">Hypotheek Dashboard</span>
+        </div>
+        <div class="header-user">
+            <div class="notification-bell">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+                <span class="notification-badge">3</span>
+            </div>
+            <div class="user-name">Jan de Vries</div>
+            <div class="user-avatar">JV</div>
+        </div>
+    </header>
+
+    <!-- Notification Dropdown -->
+    <div class="notification-dropdown">
+        <div class="notification-header">
+            <h3>Meldingen</h3>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="mark-all-read">Markeer alles als gelezen</span>
+                <svg class="checkmark-icon" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="notification-list">
+            <div class="notification-item unread">
+                <div class="notification-icon update">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Documenten goedgekeurd</div>
+                    <div class="notification-text">Al uw ingediende documenten zijn gecontroleerd en goedgekeurd.</div>
+                    <div class="notification-time">Vandaag om 14:23</div>
+                </div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon alert">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Kredietbeoordeling gestart</div>
+                    <div class="notification-text">We zijn begonnen met het beoordelen van uw financiële situatie. Dit duurt 3-5 werkdagen.</div>
+                    <div class="notification-time">Vandaag om 10:15</div>
+                </div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon success">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Bericht van uw adviseur</div>
+                    <div class="notification-text">Marieke Bakker heeft u een bericht gestuurd over de volgende stappen.</div>
+                    <div class="notification-time">Gisteren om 16:42</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon update">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Salarisstroken ontvangen</div>
+                    <div class="notification-text">We hebben uw laatste 3 salarisstroken succesvol ontvangen.</div>
+                    <div class="notification-time">2 dagen geleden</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon update">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Aanvraag geregistreerd</div>
+                    <div class="notification-text">Uw hypotheekaanvraag is succesvol ingediend en geregistreerd in ons systeem.</div>
+                    <div class="notification-time">3 dagen geleden</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-container">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <h1 class="welcome-title">Welkom terug, Jan</h1>
+            <p class="welcome-subtitle">Bekijk hier de voortgang van uw hypotheekaanvraag voor Hoofdstraat 123, Amsterdam</p>
+        </section>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Main Column -->
+            <div class="main-column">
+                <!-- Progress Timeline Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24" class="card-icon">
+                                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
+                            </svg>
+                            Voortgang aanvraag
+                        </h2>
+                        <span class="card-badge">3 van 5 stappen</span>
+                    </div>
+
+                    <div class="last-update">
+                        <span>Laatste update: 28 januari 2026, 10:15</span>
+                    </div>
+
+                    <div class="progress-timeline">
+                        <!-- Step 1: Completed -->
+                        <div class="timeline-step completed">
+                            <div class="step-indicator completed">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <div class="step-content">
+                                <h3 class="step-title">Aanvraag Ontvangen</h3>
+                                <p class="step-description">Uw aanvraag is succesvol ingediend en geregistreerd.</p>
+                                <span class="step-duration">
+                                    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    Afgerond op 15 jan 2026
+                                </span>
+                                <div class="step-details">
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat is er gebeurd?</div>
+                                            <div class="step-detail-text">Uw hypotheekverzoek is ontvangen en in ons systeem opgenomen. We hebben alles gecontroleerd en uw dossier is klaar voor de volgende stap.</div>
+                                        </div>
+                                    </div>
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat wordt er van u verwacht?</div>
+                                            <div class="step-detail-text">U hoeft op dit moment niets te doen. We zullen u contacteren als we nog informatie nodig hebben.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Completed -->
+                        <div class="timeline-step completed">
+                            <div class="step-indicator completed">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <div class="step-content">
+                                <h3 class="step-title">Documenten Gecontroleerd</h3>
+                                <p class="step-description">Alle benodigde documenten zijn ontvangen en goedgekeurd.</p>
+                                <span class="step-duration">
+                                    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    Afgerond op 18 jan 2026
+                                </span>
+                                <div class="step-details">
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Welke documenten hebben we gecontroleerd?</div>
+                                            <div class="step-detail-text">We hebben uw werkgeversverklaring, salarisstroken en koopovereenkomst bekeken. Alles ziet er goed uit.</div>
+                                        </div>
+                                    </div>
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat gebeurt er nu?</div>
+                                            <div class="step-detail-text">Nu gaan we uw financiële situatie onderzoeken. Dit doen we door uw inkomsten te checken en te kijken of u de hypotheek kunt betalen.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Active -->
+                        <div class="timeline-step active">
+                            <div class="step-indicator active">3</div>
+                            <div class="step-content">
+                                <h3 class="step-title">Kredietbeoordeling</h3>
+                                <p class="step-description">Uw financiële gegevens worden beoordeeld door onze acceptatieafdeling.</p>
+                                <span class="step-duration">
+                                    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    Geschatte duur: 3-5 werkdagen
+                                </span>
+                                <div class="step-details">
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat onderzoeken we?</div>
+                                            <div class="step-detail-text">We kijken naar uw inkomsten, schulden en spaarcapaciteit. Zo bepalen we of u de hypotheek veilig kan betalen en hoeveel geld we u kunnen lenen.</div>
+                                        </div>
+                                    </div>
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat kunt u inmiddels doen?</div>
+                                            <div class="step-detail-text">Zorg dat u bereikbaar bent. Als we vragen hebben, stellen we die graag snel. U kunt ook van tevoren al nadenken over welke rente u wilt.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Pending -->
+                        <div class="timeline-step">
+                            <div class="step-indicator pending">4</div>
+                            <div class="step-content">
+                                <h3 class="step-title">Taxatie Woning</h3>
+                                <p class="step-description">Een onafhankelijke taxateur beoordeelt de waarde van de woning.</p>
+                                <span class="step-duration">
+                                    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    Geschatte duur: 5-7 werkdagen
+                                </span>
+                                <div class="step-details">
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Waarom doen we een taxatie?</div>
+                                            <div class="step-detail-text">De taxateur controleert of het huis werkelijk zoveel waard is als u betaalt. Dit is voor beide partijen veilig.</div>
+                                        </div>
+                                    </div>
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat gaat er gebeuren?</div>
+                                            <div class="step-detail-text">We plannen een afspraak in met de taxateur. Hij bezoekt het huis, maakt foto's en schrijft een rapport. U hoeft niet aanwezig te zijn.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Pending -->
+                        <div class="timeline-step">
+                            <div class="step-indicator pending">5</div>
+                            <div class="step-content">
+                                <h3 class="step-title">Definitief Akkoord & Offerte</h3>
+                                <p class="step-description">U ontvangt de definitieve hypotheekofferte ter ondertekening.</p>
+                                <span class="step-duration">
+                                    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    Geschatte duur: 2-3 werkdagen
+                                </span>
+                                <div class="step-details">
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat staat er in het akkoord?</div>
+                                            <div class="step-detail-text">Het officiële document met alle afspraken: het bedrag, de rente, de looptijd en de voorwaarden. Dit bespreekt uw adviseur graag met u door.</div>
+                                        </div>
+                                    </div>
+                                    <div class="step-detail-item">
+                                        <div class="step-detail-content">
+                                            <div class="step-detail-title">Wat moet u doen?</div>
+                                            <div class="step-detail-text">U leest alles goed door en ondertekent het document. Daarna gaat uw hypotheek van start. U bent klaar voor uw nieuwe thuis!</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Action Card -->
+                <div class="card current-action">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                            Wat doet ING nu?
+                        </h2>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                            </svg>
+                        </div>
+                        <div class="action-text">
+                            <h3>Uw inkomen wordt geverifieerd</h3>
+                            <p>Onze acceptatieafdeling controleert uw werkgeversverklaring en salarisstroken bij de belastingdienst. Dit gebeurt automatisch en veilig.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Step Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24" class="card-icon">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                            Volgende Stappen
+                        </h2>
+                    </div>
+                    <div class="next-step-content">
+                        <div class="next-step-item">
+                            <div class="next-step-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+                                </svg>
+                            </div>
+                            <div class="next-step-info">
+                                <h4>Taxateur bezoekt de woning</h4>
+                                <p>Na goedkeuring kredietbeoordeling wordt automatisch een taxateur ingepland.</p>
+                            </div>
+                            <div class="next-step-date">
+                                <div class="date">27 jan</div>
+                                <div class="label">Verwacht</div>
+                            </div>
+                        </div>
+                        <div class="next-step-item">
+                            <div class="next-step-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                                </svg>
+                            </div>
+                            <div class="next-step-info">
+                                <h4>U ontvangt bericht van ons</h4>
+                                <p>Wij informeren u per e-mail en in dit dashboard over de uitkomst.</p>
+                            </div>
+                            <div class="next-step-date">
+                                <div class="date">29 jan</div>
+                                <div class="label">Verwacht</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Column -->
+            <div class="side-column">
+                <!-- Statistics Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24" class="card-icon">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                            </svg>
+                            Uw Aanvraag
+                        </h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">€425.000</div>
+                            <div class="stat-label">Hypotheekbedrag</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">30 jaar</div>
+                            <div class="stat-label">Looptijd</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">3,8%</div>
+                            <div class="stat-label">Indicatieve rente</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">7 dagen</div>
+                            <div class="stat-label">In behandeling</div>
+                        </div>
+                    </div>
+
+                    <!-- Expectation Box -->
+                    <div class="expectation-box" style="margin-top: 20px;">
+                        <div class="expectation-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                            </svg>
+                        </div>
+                        <p class="expectation-text">Vergelijkbare aanvragen kregen gemiddeld binnen</p>
+                        <div class="expectation-highlight">3 weken</div>
+                        <p class="expectation-text" style="margin-top: 4px;">een definitief antwoord</p>
+                    </div>
+                </div>
+
+                <!-- Documents Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24" class="card-icon">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                            </svg>
+                            Documenten
+                        </h2>
+                    </div>
+                    <div class="document-list">
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                                </svg>
+                            </div>
+                            <div class="document-info">
+                                <div class="document-name">Werkgeversverklaring</div>
+                                <div class="document-status complete">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="#4CAF50">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                    </svg>
+                                    Goedgekeurd
+                                </div>
+                            </div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                                </svg>
+                            </div>
+                            <div class="document-info">
+                                <div class="document-name">Salarisstroken (3x)</div>
+                                <div class="document-status complete">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="#4CAF50">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                    </svg>
+                                    Goedgekeurd
+                                </div>
+                            </div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                                </svg>
+                            </div>
+                            <div class="document-info">
+                                <div class="document-name">Koopovereenkomst</div>
+                                <div class="document-status complete">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="#4CAF50">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                    </svg>
+                                    Goedgekeurd
+                                </div>
+                            </div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                                </svg>
+                            </div>
+                            <div class="document-info">
+                                <div class="document-name">Taxatierapport</div>
+                                <div class="document-status pending">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="#FF6600">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                    </svg>
+                                    Wachten op taxatie
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24" class="card-icon">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                            Vragen?
+                        </h2>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-person">
+                            <div class="contact-avatar">MB</div>
+                            <div class="contact-details">
+                                <h4>Marieke Bakker</h4>
+                                <p>Uw hypotheekadviseur</p>
+                            </div>
+                        </div>
+                        <div class="contact-actions">
+                            <button class="btn btn-primary btn-full">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                </svg>
+                                Stuur bericht
+                            </button>
+                            <button class="btn btn-outline btn-full">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="#FF6600">
+                                    <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                                </svg>
+                                Bel: 020-123 4567
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24" class="card-icon">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                            </svg>
+                            Veelgestelde Vragen
+                        </h2>
+                    </div>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                                <h4>Waarom duurt de beoordeling zo lang?</h4>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Wij controleren zorgvuldig alle gegevens om u de beste hypotheek te kunnen aanbieden. Dit doen we onder andere door uw inkomen te verifiëren bij de Belastingdienst en werkgever.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                                <h4>Kan ik documenten nog aanpassen?</h4>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Ja, tot aan de definitieve goedkeuring kunt u documenten vervangen of toevoegen via uw adviseur. Neem hiervoor contact op met Marieke Bakker.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+                                <h4>Wat als mijn aanvraag wordt afgewezen?</h4>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Bij een afwijzing ontvangt u direct een duidelijke uitleg met de reden. Uw adviseur neemt binnen 24 uur contact met u op om alternatieven te bespreken.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box" style="margin-top: 24px;">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+            <p>
+                <strong>Wist u dat?</strong> U kunt dit dashboard 24/7 raadplegen. Bij elke statuswijziging ontvangt u automatisch een e-mail en pushbericht via de ING App. Zo bent u altijd op de hoogte van de laatste ontwikkelingen.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        // Notification bell toggle
+        const notificationBell = document.querySelector('.notification-bell');
+        const notificationDropdown = document.querySelector('.notification-dropdown');
+        const notificationBadge = document.querySelector('.notification-badge');
+        const markAllRead = document.querySelector('.mark-all-read');
+
+        notificationBell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+                notificationDropdown.classList.remove('active');
+            }
+        });
+
+        // Mark all as read
+        markAllRead.addEventListener('click', function() {
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+            });
+            notificationBadge.textContent = '0';
+            notificationBadge.style.display = 'none';
+            
+            // Hide the button text
+            markAllRead.style.display = 'none';
+            
+            // Show the checkmark
+            const checkmark = document.querySelector('.checkmark-icon');
+            checkmark.style.display = 'block';
+            
+            // Hide the checkmark after 1.3 seconds (animation duration)
+            setTimeout(() => {
+                checkmark.style.display = 'none';
+                markAllRead.classList.add('completed');
+            }, 1300);
+        });
+
+        // Individual notification click
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.remove('unread');
+                updateNotificationCount();
+            });
+        });
+
+        function updateNotificationCount() {
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            notificationBadge.textContent = unreadCount;
+            if (unreadCount === 0) {
+                notificationBadge.style.display = 'none';
+            }
+        }
+
+        // Timeline step expansion
+        document.querySelectorAll('.timeline-step').forEach(step => {
+            const stepContent = step.querySelector('.step-content');
+            
+            stepContent.addEventListener('click', function(e) {
+                // Voorkomen dat links en buttons ook clickable zijn
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                    return;
+                }
+                
+                step.classList.toggle('expanded');
+            });
+        });
+
+        // Secret mode toggle
+        let secretModeActive = false;
+        const userAvatar = document.querySelector('.user-avatar');
+        const logo = document.querySelector('.logo');
+        
+        // Store original text content for elements that will be modified
+        const originalTexts = new Map();
+        
+        // Elements containing specific text that should be replaced
+        function getTextNodes(element, searchText) {
+            const textNodes = [];
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.textContent.includes(searchText)) {
+                    textNodes.push(node);
+                }
+            }
+            return textNodes;
+        }
+        
+        // Toggle secret mode
+        userAvatar.addEventListener('click', function() {
+            secretModeActive = !secretModeActive;
+            
+            if (secretModeActive) {
+                // Hide logo
+                logo.style.opacity = '0';
+                logo.style.visibility = 'hidden';
+                
+                // Replace all "ING" text with "bank"
+                const allTextNodes = getTextNodes(document.body, 'ING');
+                allTextNodes.forEach(node => {
+                    node.textContent = node.textContent.replace(/ING/g, 'bank');
+                });
+                
+                // Update page title
+                document.title = document.title.replace(/ING/g, 'bank');
+                
+                // Visual feedback on avatar
+                this.style.backgroundColor = 'var(--ing-indigo)';
+                this.title = 'Klik om terug te schakelen naar normale modus';
+            } else {
+                // Show logo
+                logo.style.opacity = '1';
+                logo.style.visibility = 'visible';
+                
+                // Restore all original "ING" text - search for "bank" nodes
+                const allTextNodes = getTextNodes(document.body, 'bank');
+                allTextNodes.forEach(node => {
+                    node.textContent = node.textContent.replace(/bank/g, 'ING');
+                });
+                
+                // Restore page title
+                document.title = document.title.replace(/bank/g, 'ING');
+                
+                // Reset avatar color
+                this.style.backgroundColor = 'var(--ing-orange)';
+                this.title = '';
+            }
+        });
+        
+        // Add cursor pointer to avatar
+        userAvatar.style.cursor = 'pointer';
+        userAvatar.style.transition = 'background-color 0.3s ease, transform 0.2s ease';
+        logo.style.transition = 'opacity 0.3s ease, visibility 0.3s ease';
+        
+        // Add hover effect to avatar
+        userAvatar.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        userAvatar.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+
+        // Add smooth scrolling and interactivity
+        document.querySelectorAll('.document-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+
+        // Animate stats on scroll
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+
+        // Initialize cards as visible
+        setTimeout(() => {
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            });
+        }, 100);
+    </script>
+</body>
+</html>
