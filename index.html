@@ -1075,6 +1075,219 @@
             color: var(--ing-indigo);
         }
 
+        /* Accessibility Button */
+        .accessibility-toggle {
+            position: relative;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: transparent;
+            font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+        }
+
+        .accessibility-toggle:hover {
+            background-color: var(--ing-light-grey);
+        }
+
+        .accessibility-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--ing-blue);
+        }
+
+        .accessibility-toggle.active {
+            background-color: var(--ing-orange);
+        }
+
+        .accessibility-toggle.active:hover {
+            background-color: #e65c00;
+        }
+
+        .accessibility-toggle.active svg {
+            fill: var(--ing-white);
+        }
+
+        /* Large Text Mode */
+        body.large-text {
+            font-size: 22px;
+            line-height: 1.7;
+        }
+
+        body.large-text .header-title {
+            font-size: 24px;
+        }
+
+        body.large-text .user-name {
+            font-size: 18px;
+        }
+
+        body.large-text .welcome-title {
+            font-size: 38px;
+        }
+
+        body.large-text .welcome-subtitle {
+            font-size: 22px;
+        }
+
+        body.large-text .card-title {
+            font-size: 24px;
+        }
+
+        body.large-text .card-badge {
+            font-size: 15px;
+            padding: 6px 14px;
+        }
+
+        body.large-text .last-update {
+            font-size: 16px;
+        }
+
+        body.large-text .step-title {
+            font-size: 20px;
+        }
+
+        body.large-text .step-description {
+            font-size: 18px;
+        }
+
+        body.large-text .step-duration {
+            font-size: 16px;
+            padding: 6px 12px;
+        }
+
+        body.large-text .step-detail-title {
+            font-size: 18px;
+        }
+
+        body.large-text .step-detail-text {
+            font-size: 18px;
+        }
+
+        body.large-text .action-text h3 {
+            font-size: 26px;
+        }
+
+        body.large-text .action-text p {
+            font-size: 20px;
+        }
+
+        body.large-text .next-step-info h4 {
+            font-size: 20px;
+        }
+
+        body.large-text .next-step-info p {
+            font-size: 18px;
+        }
+
+        body.large-text .next-step-date .date {
+            font-size: 20px;
+        }
+
+        body.large-text .next-step-date .label {
+            font-size: 15px;
+        }
+
+        body.large-text .stat-value {
+            font-size: 42px;
+        }
+
+        body.large-text .stat-label {
+            font-size: 18px;
+        }
+
+        body.large-text .document-name {
+            font-size: 18px;
+        }
+
+        body.large-text .document-status {
+            font-size: 16px;
+        }
+
+        body.large-text .faq-question h4 {
+            font-size: 18px;
+        }
+
+        body.large-text .faq-answer p {
+            font-size: 18px;
+        }
+
+        body.large-text .info-box p {
+            font-size: 18px;
+        }
+
+        body.large-text .notification-header h3 {
+            font-size: 20px;
+        }
+
+        body.large-text .notification-title {
+            font-size: 18px;
+        }
+
+        body.large-text .notification-text {
+            font-size: 17px;
+        }
+
+        body.large-text .notification-time {
+            font-size: 15px;
+        }
+
+        body.large-text .expectation-text {
+            font-size: 18px;
+        }
+
+        body.large-text .expectation-highlight {
+            font-size: 32px;
+        }
+
+        body.large-text .btn {
+            font-size: 18px;
+            padding: 16px 32px;
+        }
+
+        body.large-text .contact-details h4 {
+            font-size: 20px;
+        }
+
+        body.large-text .contact-details p {
+            font-size: 18px;
+        }
+
+        body.large-text .contact-avatar {
+            font-size: 24px;
+            width: 64px;
+            height: 64px;
+        }
+
+        body.large-text .next-step-details p {
+            font-size: 18px;
+        }
+
+        body.large-text .modal-title {
+            font-size: 28px;
+        }
+
+        body.large-text .modal-subtitle {
+            font-size: 18px;
+        }
+
+        body.large-text .modal-body {
+            font-size: 18px;
+        }
+
+        body.large-text .chat-bubble {
+            font-size: 17px;
+        }
+
+        body.large-text .chat-input {
+            font-size: 17px;
+        }
+
         /* Modal Styles */
         .modal-overlay {
             display: none;
@@ -1406,6 +1619,11 @@
             <span class="header-title">Hypotheek Dashboard</span>
         </div>
         <div class="header-user">
+            <button class="accessibility-toggle" id="accessibilityToggle" title="Grotere tekst aan/uit">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 4v3h5v12h3V7h5V4H9zm-6 8h3v7h3v-7h3V9H3v3z"/>
+                </svg>
+            </button>
             <div class="notification-bell">
                 <svg viewBox="0 0 24 24">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
@@ -2006,6 +2224,24 @@
     </div>
 
     <script>
+        // Accessibility toggle
+        const accessibilityToggle = document.getElementById('accessibilityToggle');
+        
+        // Check if large text preference was saved
+        if (localStorage.getItem('largeTextMode') === 'true') {
+            document.body.classList.add('large-text');
+            accessibilityToggle.classList.add('active');
+        }
+        
+        accessibilityToggle.addEventListener('click', function() {
+            document.body.classList.toggle('large-text');
+            this.classList.toggle('active');
+            
+            // Save preference
+            const isLargeText = document.body.classList.contains('large-text');
+            localStorage.setItem('largeTextMode', isLargeText);
+        });
+
         // Notification bell toggle
         const notificationBell = document.querySelector('.notification-bell');
         const notificationDropdown = document.querySelector('.notification-dropdown');
